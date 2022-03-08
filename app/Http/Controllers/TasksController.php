@@ -13,7 +13,7 @@ class TasksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     
+
     public function index()
     {
         $data = [];
@@ -91,17 +91,21 @@ class TasksController extends Controller
         $task = Task::findOrFail($id);
 
         // タスク詳細ビューでそれを表示
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }else{
+            return redirect('/');
+        }
     }
-
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
      // getでtasks/id/editにアクセスされた場合の「更新画面表示処理」
     public function edit($id)
     {
@@ -109,12 +113,15 @@ class TasksController extends Controller
         $task = Task::findOrFail($id);
 
         // タスク編集ビューでそれを表示
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
-    }
-    
-    /**
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.edit', [
+                'task' => $task,
+            ]);
+        }else{
+            return redirect('/');
+        }
+    }    
+        /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -136,9 +143,11 @@ class TasksController extends Controller
         // idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
         // タスクを更新
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+        if (\Auth::id() === $task->user_id) {
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
+        }
 
         // トップページへリダイレクトさせる
         return redirect('/');
